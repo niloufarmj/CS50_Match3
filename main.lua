@@ -1,4 +1,5 @@
 push = require 'push'
+Timer = require 'knife.timer'
 
 WINDOW = {
     VIRTUAL_WIDTH = 350,
@@ -12,21 +13,26 @@ local numBirds = 100
 local startTime
 local endTime = 10
 local birdImage
-local birdImageWidth = 30
-local maxDistance = WINDOW.VIRTUAL_WIDTH - birdImageWidth
-local minSpeed = maxDistance / endTime
-local maxSpeed = 2 * minSpeed
 
 function love.load()
     birdImage = love.graphics.newImage("assets/bird.png")
+    endX = WINDOW.VIRTUAL_WIDTH - birdImage:getWidth()
 
     for i = 1, numBirds do
         local bird = {
             x = 0,
             y = love.math.random(WINDOW.VIRTUAL_HEIGHT),
-            speed = love.math.random(minSpeed, maxSpeed)
+            speed =  math.random() + math.random(endTime - 1),
+            opacity = 0
         }
         table.insert(birds, bird)
+    end
+
+    for k, bird in pairs(birds) do
+        Timer.tween(bird.speed, {
+            -- tween bird's X to endX over bird.rate seconds
+            [bird] = { x = endX, opacity = 255}
+        })
     end
 
     push:setupScreen(WINDOW.VIRTUAL_WIDTH, WINDOW.VIRTUAL_HEIGHT, WINDOW.WINDOW_WIDTH, WINDOW.WINDOW_HEIGHT, {
@@ -53,22 +59,18 @@ function love.update(dt)
         return
     end
     startTime = startTime + dt
-
-    for _, bird in ipairs(birds) do
-        bird.x = bird.speed * startTime
-        if bird.x > WINDOW.VIRTUAL_WIDTH - birdImageWidth then
-            bird.x = WINDOW.VIRTUAL_WIDTH - birdImageWidth
-        end
-    end
+    Timer.update(dt)
 end
 
 function love.draw()
     push:start()
 
     for _, bird in ipairs(birds) do
+        love.graphics.setColor(0, 255, 255, bird.opacity)
         love.graphics.draw(birdImage, bird.x, bird.y)
     end
 
+    --love.graphics.setColor(255, 255, 255, 255)
     love.graphics.printf('Time: ' .. string.format("%.2f", startTime), 10, 10, WINDOW.VIRTUAL_WIDTH, 'left')
 
     push:finish()
