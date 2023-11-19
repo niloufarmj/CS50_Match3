@@ -7,17 +7,27 @@ WINDOW = {
     WINDOW_HEIGHT = 600
 }
 
-local bird = {
-    image = nil,
-    x = 0,
-    y = WINDOW.VIRTUAL_HEIGHT / 2
-}
-
+local birds = {}
+local numBirds = 100
 local startTime
-local duration = 2
+local endTime = 10
+local birdImage
+local birdImageWidth = 30
+local maxDistance = WINDOW.VIRTUAL_WIDTH - birdImageWidth
+local minSpeed = maxDistance / endTime
+local maxSpeed = 2 * minSpeed
 
 function love.load()
-    bird.image = love.graphics.newImage("assets/bird.png")
+    birdImage = love.graphics.newImage("assets/bird.png")
+
+    for i = 1, numBirds do
+        local bird = {
+            x = 0,
+            y = love.math.random(WINDOW.VIRTUAL_HEIGHT),
+            speed = love.math.random(minSpeed, maxSpeed)
+        }
+        table.insert(birds, bird)
+    end
 
     push:setupScreen(WINDOW.VIRTUAL_WIDTH, WINDOW.VIRTUAL_HEIGHT, WINDOW.WINDOW_WIDTH, WINDOW.WINDOW_HEIGHT, {
         fullscreen = false,
@@ -39,22 +49,27 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-    
-
-    if startTime < duration then
-        startTime = startTime + dt
-        bird.x = WINDOW.VIRTUAL_WIDTH * (startTime / duration) - bird.image:getWidth()
-    else
-        bird.x = WINDOW.VIRTUAL_WIDTH - bird.image:getWidth()
+    if startTime > 10 then
+        return
     end
+    startTime = startTime + dt
 
+    for _, bird in ipairs(birds) do
+        bird.x = bird.speed * startTime
+        if bird.x > WINDOW.VIRTUAL_WIDTH - birdImageWidth then
+            bird.x = WINDOW.VIRTUAL_WIDTH - birdImageWidth
+        end
+    end
 end
 
 function love.draw()
     push:start()
 
-    love.graphics.draw(bird.image, bird.x, bird.y)
-    love.graphics.printf('Time: ' .. tostring(startTime), 10, 10, WINDOW.VIRTUAL_WIDTH, 'left')
+    for _, bird in ipairs(birds) do
+        love.graphics.draw(birdImage, bird.x, bird.y)
+    end
+
+    love.graphics.printf('Time: ' .. string.format("%.2f", startTime), 10, 10, WINDOW.VIRTUAL_WIDTH, 'left')
 
     push:finish()
 end
