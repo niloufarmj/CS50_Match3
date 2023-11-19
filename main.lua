@@ -1,5 +1,4 @@
 push = require 'push'
-timer = require 'knife.timer'
 
 WINDOW = {
     VIRTUAL_WIDTH = 350,
@@ -8,24 +7,25 @@ WINDOW = {
     WINDOW_HEIGHT = 600
 }
 
-local timers = {
-    { interval = 1, currentSecond = 0 },
-    { interval = 2, currentSecond = 0 },
-    { interval = 3, currentSecond = 0 },
-    { interval = 4, currentSecond = 0 },
-    { interval = 5, currentSecond = 0 }
+local bird = {
+    image = nil,
+    x = 0,
+    y = WINDOW.VIRTUAL_HEIGHT / 2
 }
 
+local startTime
+local duration = 2
+
 function love.load()
+    bird.image = love.graphics.newImage("assets/bird.png")
+
     push:setupScreen(WINDOW.VIRTUAL_WIDTH, WINDOW.VIRTUAL_HEIGHT, WINDOW.WINDOW_WIDTH, WINDOW.WINDOW_HEIGHT, {
         fullscreen = false,
         vsync = true,
         resizable = true
     })
 
-    for _, t in ipairs(timers) do
-        timer.every(t.interval, function() t.currentSecond = t.currentSecond + 1 end)
-    end
+    startTime = 0
 end
 
 function love.resize(w, h)
@@ -39,15 +39,22 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-    timer.update(dt)
+    
+
+    if startTime < duration then
+        startTime = startTime + dt
+        bird.x = WINDOW.VIRTUAL_WIDTH * (startTime / duration) - bird.image:getWidth()
+    else
+        bird.x = WINDOW.VIRTUAL_WIDTH - bird.image:getWidth()
+    end
+
 end
 
 function love.draw()
     push:start()
-    for i, t in ipairs(timers) do
-        local offsetY = (i - 1) * 18
-        love.graphics.printf('Timer (' .. tostring(t.interval) .. ' seconds): ' .. tostring(t.currentSecond) .. ' seconds',
-            0, WINDOW.VIRTUAL_HEIGHT / 2 - 36 + offsetY, WINDOW.VIRTUAL_WIDTH, 'center')
-    end
+
+    love.graphics.draw(bird.image, bird.x, bird.y)
+    love.graphics.printf('Time: ' .. tostring(startTime), 10, 10, WINDOW.VIRTUAL_WIDTH, 'left')
+
     push:finish()
 end
