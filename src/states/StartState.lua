@@ -40,6 +40,9 @@ function StartState:init()
 end
 
 function StartState:update(dt)
+    if love.keyboard.keysPressed['enter'] or love.keyboard.keysPressed['return'] then
+        gStateMachine:change('begin-game')
+    end
     Timer.update(dt)
 end
 

@@ -1,17 +1,16 @@
 require 'src/Dependencies'
 
 WINDOW = {
-    VIRTUAL_WIDTH = 350,
-    VIRTUAL_HEIGHT = 200,
-    WINDOW_WIDTH = 1050,
-    WINDOW_HEIGHT = 600
+    VIRTUAL_WIDTH = 512,
+    VIRTUAL_HEIGHT = 288,
+    WINDOW_WIDTH = 1280,
+    WINDOW_HEIGHT = 720
 }
 
 -- seconds it takes to move each step
 MOVEMENT_TIME = 2
 
 function love.load()
-    birdImage = love.graphics.newImage("assets/bird.png")
 
     push:setupScreen(WINDOW.VIRTUAL_WIDTH, WINDOW.VIRTUAL_HEIGHT, WINDOW.WINDOW_WIDTH, WINDOW.WINDOW_HEIGHT, {
         fullscreen = false,
@@ -21,38 +20,13 @@ function love.load()
 
     gStateMachine = StateMachine {
         ['start'] = function() return StartState() end,
+        ['begin-game'] = function () return BeginGameState() end,
+        ['play'] = function () return PlayState() end
     }
 
-    startTime = 0
+    gStateMachine:change('start')
+    love.keyboard.keysPressed = {}
 
-    movements = { -- Sequence of movements
-        {x = WINDOW.VIRTUAL_WIDTH - birdImage:getWidth(), y = 0},
-        {x = WINDOW.VIRTUAL_WIDTH - birdImage:getWidth(), y = WINDOW.VIRTUAL_HEIGHT - birdImage:getHeight()},
-        {x = 0, y = WINDOW.VIRTUAL_HEIGHT - birdImage:getHeight()},
-        {x = 0, y = 0}
-    }
-
-
-    bird = {x = 0, y = 0}
-
-    Timer.tween(MOVEMENT_TIME, {
-        [bird] = movements[1]
-    })
-    :finish(function()
-        Timer.tween(MOVEMENT_TIME, {
-            [bird] = movements[2]
-        })
-        :finish(function()
-            Timer.tween(MOVEMENT_TIME, {
-                [bird] = movements[3]
-            })
-            :finish(function()
-                Timer.tween(MOVEMENT_TIME, {
-                    [bird] = movements[4]
-                })
-            end)
-        end)
-    end)
 end
 
 function love.resize(w, h)
@@ -60,12 +34,16 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
+    love.keyboard.keysPressed[key] = true
+
     if key == 'escape' then
         love.event.quit()
     end
 end
 
 function love.update(dt)
+
+    gStateMachine:update(dt)
     Timer.update(dt)
 end
 
@@ -73,7 +51,7 @@ function love.draw()
     push:start()
 
     love.graphics.draw(gTextures['background'], 0, 0)
-    love.graphics.draw(birdImage, bird.x, bird.y)
+    gStateMachine:render()
 
     push:finish()
 end

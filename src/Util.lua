@@ -1,3 +1,21 @@
+function GenerateQuads(atlas, tilewidth, tileheight)
+    local sheetWidth = atlas:getWidth() / tilewidth
+    local sheetHeight = atlas:getHeight() / tileheight
+
+    local sheetCounter = 1
+    local spritesheet = {}
+
+    for y = 0, sheetHeight - 1 do
+        for x = 0, sheetWidth - 1 do
+            spritesheet[sheetCounter] =
+                love.graphics.newQuad(x * tilewidth, y * tileheight, tilewidth,
+                tileheight, atlas:getDimensions())
+            sheetCounter = sheetCounter + 1
+        end
+    end
+
+    return spritesheet
+end
 
 function GenerateTileQuads(atlas)
     local tiles = {}
@@ -30,10 +48,34 @@ function GenerateTileQuads(atlas)
     return tiles
 end
 
---[[
-    Recursive table printing function.
-    https://coronalabs.com/blog/2014/09/02/tutorial-printing-table-contents/
-]]
+function GenerateBoard()
+    local tiles = {}
+
+    -- each column of tiles
+    for y = 1, 8 do
+        
+        -- row of tiles
+        table.insert(tiles, {})
+
+        for x = 1, 8 do
+            
+            -- tiles[y] will be the blank table we just inserted
+            table.insert(tiles[y], {
+                
+                --coordinates are 0-based, so subtract one before multiplying by 32
+                x = (x - 1) * 32,
+                y = (y - 1) * 32,
+                
+                -- assign a random ID to tile to make it a random tile
+                tile = math.random(#gFrames['tiles'])
+            })
+        end
+    end
+
+    return tiles
+end
+
+
 function print_r ( t )
     local print_r_cache={}
     local function sub_print_r(t,indent)

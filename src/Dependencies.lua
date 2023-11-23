@@ -31,5 +31,10 @@ gFonts = {
 }
 
 gTextures = {
-    ['background'] = love.graphics.newImage('assets/bg4.png')
+    ['background'] = love.graphics.newImage('assets/bg4.png'),
+    ['main'] = love.graphics.newImage('assets/match3.png'),
+}
+
+gFrames = {
+    ['tiles'] = GenerateQuads(gTextures['main'], 32, 32)
 }
