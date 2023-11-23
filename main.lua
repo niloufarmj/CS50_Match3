@@ -10,11 +10,6 @@ WINDOW = {
 -- seconds it takes to move each step
 MOVEMENT_TIME = 2
 
-local birdImage
-local birdX
-local birdY
-local movements 
-
 function love.load()
     birdImage = love.graphics.newImage("assets/bird.png")
 
@@ -37,15 +32,27 @@ function love.load()
         {x = 0, y = 0}
     }
 
-    for k, movement in pairs(movements) do
-        movement.reached = false
-    end
 
-    birdX = 0
-    birdY = 0
+    bird = {x = 0, y = 0}
 
-    baseX , baseY = birdX, birdY
-    timer = 0
+    Timer.tween(MOVEMENT_TIME, {
+        [bird] = movements[1]
+    })
+    :finish(function()
+        Timer.tween(MOVEMENT_TIME, {
+            [bird] = movements[2]
+        })
+        :finish(function()
+            Timer.tween(MOVEMENT_TIME, {
+                [bird] = movements[3]
+            })
+            :finish(function()
+                Timer.tween(MOVEMENT_TIME, {
+                    [bird] = movements[4]
+                })
+            end)
+        end)
+    end)
 end
 
 function love.resize(w, h)
@@ -59,38 +66,14 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-    timer = math.min(MOVEMENT_TIME, timer + dt)
-
-    for i, movement in ipairs(movements) do
-        if not movement.reached then
-            birdX, birdY =
-                baseX + (movement.x - baseX) * timer / MOVEMENT_TIME,
-                baseY + (movement.y - baseY) * timer / MOVEMENT_TIME
-            
-            -- flag movement as reached if we've reached the movement time and set the
-            -- base point as the new current point
-            if timer == MOVEMENT_TIME then
-                movement.reached = true
-                baseX, baseY = movement.x, movement.y
-                timer = 0
-            end
-
-            -- only need to calculate first unreached movement we iterate over
-            break
-        end
-    end
-end
-
--- Linear interpolation function
-function lerp(a, b, t)
-    return (1 - t) * a + t * b
+    Timer.update(dt)
 end
 
 function love.draw()
     push:start()
 
     love.graphics.draw(gTextures['background'], 0, 0)
-    love.graphics.draw(birdImage, birdX, birdY)
+    love.graphics.draw(birdImage, bird.x, bird.y)
 
     push:finish()
 end
