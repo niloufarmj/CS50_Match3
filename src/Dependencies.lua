@@ -9,9 +9,6 @@ push = require 'lib/push'
 -- used for timers and tweening
 Timer = require 'lib/knife.timer'
 
---
--- our own code
---
 
 -- utility
 require 'src/StateMachine'
@@ -24,6 +21,9 @@ require 'src/states/GameOverState'
 require 'src/states/PlayState'
 require 'src/states/StartState'
 
+require 'src/Board'
+require 'src/Tile'
+
 gFonts = {
     ['small'] = love.graphics.newFont('assets/font.ttf', 8),
     ['medium'] = love.graphics.newFont('assets/font.ttf', 16),
@@ -32,9 +32,9 @@ gFonts = {
 
 gTextures = {
     ['background'] = love.graphics.newImage('assets/bg4.png'),
-    ['main'] = love.graphics.newImage('assets/match3.png'),
+    ['main'] = love.graphics.newImage('assets/test.png'),
 }
 
 gFrames = {
-    ['tiles'] = GenerateQuads(gTextures['main'], 32, 32)
+    ['tiles'] = GenerateTileQuads(gTextures['main'])
 }

@@ -25,51 +25,22 @@ function GenerateTileQuads(atlas)
 
     local counter = 1
 
-    -- 9 rows of tiles
-    for row = 1, 9 do
+    -- 5 rows of tiles
+    for col = 1, 5 do
         
-        -- two sets of 6 cols, different tile varietes
-        for i = 1, 2 do
-            tiles[counter] = {}
+        tiles[counter] = {}
             
-            for col = 1, 6 do
-                table.insert(tiles[counter], love.graphics.newQuad(
-                    x, y, 32, 32, atlas:getDimensions()
-                ))
-                x = x + 32
-            end
-
-            counter = counter + 1
+        for row = 1, 7 do
+            table.insert(tiles[counter], love.graphics.newQuad(
+                x, y, 32, 32, atlas:getDimensions()
+            ))
+            y = y + 32
         end
-        y = y + 32
-        x = 0
-    end
 
-    return tiles
-end
-
-function GenerateBoard()
-    local tiles = {}
-
-    -- each column of tiles
-    for y = 1, 8 do
+        counter = counter + 1
         
-        -- row of tiles
-        table.insert(tiles, {})
-
-        for x = 1, 8 do
-            
-            -- tiles[y] will be the blank table we just inserted
-            table.insert(tiles[y], {
-                
-                --coordinates are 0-based, so subtract one before multiplying by 32
-                x = (x - 1) * 32,
-                y = (y - 1) * 32,
-                
-                -- assign a random ID to tile to make it a random tile
-                tile = math.random(#gFrames['tiles'])
-            })
-        end
+        y = 0
+        x = x + 32
     end
 
     return tiles

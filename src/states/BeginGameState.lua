@@ -1,10 +1,7 @@
 BeginGameState = Class{__includes = BaseState}
 
 function BeginGameState:init()
-    -- spawn a board and place it toward the right
-    self.board = GenerateBoard()
-
-    -- start our level # label off-screen
+    self.board = Board(WINDOW.VIRTUAL_WIDTH - 350, 45)
     self.levelLabelY = -64
 end
 
