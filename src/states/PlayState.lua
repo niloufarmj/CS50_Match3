@@ -13,13 +13,17 @@ function PlayState:init()
     self.highlightedTile = nil
 
     self.score = 0
-    self.timer = 60
+
+    self.timer = 120  -- Set the initial timer value to 120 seconds (2 minutes)
+    
+    -- Define the tween for the timer countdown
+    Timer.every(2, function()
+        self.timer = self.timer - 1
+    end)
     
 end
 
 function PlayState:enter(params)
-    
-
     -- spawn a board and place it toward the right
     self.board = params.board or Board(WINDOW.VIRTUAL_WIDTH - 272, 16)
 
@@ -33,13 +37,13 @@ function PlayState:update(dt)
             self.boardHighlightY = math.max(0, self.boardHighlightY - 1)
             
         elseif love.keyboard.keysPressed['down'] then
-            self.boardHighlightY = math.min(6, self.boardHighlightY + 1)
+            self.boardHighlightY = math.min(5, self.boardHighlightY + 1)
             
         elseif love.keyboard.keysPressed['left'] then
             self.boardHighlightX = math.max(0, self.boardHighlightX - 1)
             
         elseif love.keyboard.keysPressed['right'] then
-            self.boardHighlightX = math.min(6, self.boardHighlightX + 1)
+            self.boardHighlightX = math.min(5, self.boardHighlightX + 1)
             
         end
 
@@ -87,13 +91,37 @@ function PlayState:update(dt)
                 })
                 
                 :finish(function()
-                    -- self:calculateMatches()
+                    self:calculateMatches()
                 end)
             end
         end
     end
 
     Timer.update(dt)
+end
+
+function PlayState:calculateMatches()
+    self.highlightedTile = nil
+
+    local matches = self.board:calculateMatches()
+
+    if matches then
+        for _, match in ipairs(matches) do
+            self.score = self.score + #match * 50
+        end
+
+        self.board:removeMatches()
+
+        local tilesToFall = self.board:getFallingTiles()
+
+        local fallDuration = 1
+        Timer.tween(fallDuration, tilesToFall)
+            :finish(function()
+                self:calculateMatches()
+            end)
+    else
+        self.canInput = true
+    end
 end
 
 
@@ -126,5 +154,21 @@ function PlayState:render()
     love.graphics.setLineWidth(3)
     love.graphics.rectangle('line', self.boardHighlightX * 32 + (WINDOW.VIRTUAL_WIDTH - 350),
         self.boardHighlightY * 32 + 45, 32, 32, 4)
+
+    -- Render the timer value on the screen
+    love.graphics.setColor(225/255, 115/255, 130/255)  -- Set the color for the timer text
+
+    minutes = self.timer / 60
+    seconds = self.timer % 60
+
+    if seconds < 10 then
+        seconds = '0' .. tostring(seconds)
+    end
+
+    love.graphics.print("Timer", 15, 10)
+    love.graphics.print(math.floor(minutes) .. ':' .. seconds, 25, 40)  
+
+    love.graphics.print("Score", WINDOW.VIRTUAL_WIDTH-85, 10)
+    love.graphics.printf(tostring(self.score), WINDOW.VIRTUAL_WIDTH-95, 40, 90, 'center')  
 
 end

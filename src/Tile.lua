@@ -33,11 +33,3 @@ function Tile:render(x, y)
     love.graphics.draw(gTextures['main'], gFrames['tiles'][self.color][self.variety],
         self.x + x, self.y + y)
 end
-
-function Tile:setHighlighted(highlighted)
-    self.highlighted = highlighted
-end
-
-function Tile:setSelected(selected)
-    self.selected = selected
-end
