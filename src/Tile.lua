@@ -1,6 +1,6 @@
 Tile = Class{}
 
-function Tile:init(x, y, color, variety)
+function Tile:init(x, y, color, variety, isShiny)
     
     -- board positions
     self.gridX = x
@@ -14,19 +14,18 @@ function Tile:init(x, y, color, variety)
     self.color = color
     self.variety = variety
 
-    self.highlighted = false
-    self.selected = false
+    self.isShiny = isShiny
 end
 
 function Tile:render(x, y)
     
-    if self.selected then 
-        -- Draw the border square
-        love.graphics.setColor({0, 255, 0, 255})
-        love.graphics.rectangle('line', self.x + x, self.y + y, 32, 32)
-    elseif self.highlighted then
-        love.graphics.setColor({255, 0, 0, 255})
-        love.graphics.rectangle('line', self.x + x, self.y + y, 32, 32)
+
+    if self.isShiny then
+        love.graphics.setColor(255, 255, 0, 0.7)
+
+        -- Draw the rectangle to highlight the shiny tile
+        love.graphics.rectangle('fill', self.x + x - 1, self.y + y - 1, 34, 34, 4)
+
     end
 
     love.graphics.setColor(255, 255, 255, 255)

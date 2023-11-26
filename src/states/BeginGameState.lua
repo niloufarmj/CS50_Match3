@@ -1,7 +1,7 @@
 BeginGameState = Class{__includes = BaseState}
 
 function BeginGameState:init()
-    self.board = Board(WINDOW.VIRTUAL_WIDTH - 350, 30)
+    self.board = Board(WINDOW.VIRTUAL_WIDTH - 350, 30, 1)
     self.levelLabelY = -64
 end
 
@@ -9,6 +9,9 @@ function BeginGameState:enter(params)
 
     self.level = params.level
     self.score = params.score
+
+    self.board = Board(WINDOW.VIRTUAL_WIDTH - 350, 30, self.level)
+
     Timer.tween(2, {
         [self] = {levelLabelY = WINDOW.VIRTUAL_HEIGHT / 2 - 8}
     })

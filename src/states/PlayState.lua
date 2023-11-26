@@ -26,11 +26,11 @@ function PlayState:init()
 end
 
 function PlayState:enter(params)
-    -- spawn a board and place it toward the right
-    self.board = params.board or Board(WINDOW.VIRTUAL_WIDTH - 272, 16)
     self.level = params.level 
     self.maxScore = BASE_SCORE + 1500 * self.level
     self.sumScore = params.score
+    -- spawn a board and place it toward the right
+    self.board = params.board or Board(WINDOW.VIRTUAL_WIDTH - 272, 16, self.level)
 end
 
 function PlayState:update(dt)
@@ -128,12 +128,10 @@ function PlayState:calculateMatches()
 
     if matches then
         
-        for _, match in ipairs(matches) do
-            self.score = self.score + #match * 50
-            self.timer = self.timer + #match  -- Add 1 second per tile in the match
-        end
+        local totalScore = self.board:removeMatches()
+        self.score = self.score + totalScore
 
-        self.board:removeMatches()
+        self.timer = self.timer + (#matches * 1)
 
         local tilesToFall = self.board:getFallingTiles()
 

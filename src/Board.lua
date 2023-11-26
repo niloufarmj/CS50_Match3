@@ -1,8 +1,9 @@
 Board = Class{}
 
-function Board:init(x, y)
+function Board:init(x, y, l)
     self.x = x
     self.y = y
+    self.level = l
     self.matches = {}
 
     self:initializeTiles()
@@ -18,7 +19,7 @@ function Board:initializeTiles()
         for tileX = 1, 6 do
             
             -- create a new tile at X,Y with a random color and variety
-            table.insert(self.tiles[tileY], Tile(tileX, tileY, math.random(5), math.random(7)))
+            table.insert(self.tiles[tileY], Tile(tileX, tileY, math.random(5), math.min(math.random(self.level), 7), math.random(100) <= 5))
         end
     end
 
@@ -120,13 +121,30 @@ end
 
 
 function Board:removeMatches()
-    for _, match in ipairs(self.matches) do
-        for _, tile in ipairs(match) do
+    local totalScore = 0  -- Variable to track the total score earned
+    
+    for k, match in pairs(self.matches) do
+        for k, tile in pairs(match) do
             self.tiles[tile.gridY][tile.gridX] = nil
+
+            -- Check if the tile is shiny
+            if tile.isShiny then
+                -- Destroy the entire row and add score for each tile
+                for x = 1, 8 do
+                    if self.tiles[tile.gridY][x] then
+                        totalScore = totalScore + (self.tiles[tile.gridY][x].variety + 1) * 25
+                        self.tiles[tile.gridY][x] = nil
+                    end
+                end
+            else
+                totalScore = totalScore + (tile.variety + 1) * 25
+            end
         end
     end
 
     self.matches = nil
+    
+    return totalScore  -- Return the total score earned
 end
 
 
@@ -172,7 +190,7 @@ function Board:getFallingTiles()
             local tile = self.tiles[y][x]
 
             if not tile then
-                tile = Tile(x, y, math.random(5), math.random(7))
+                tile = Tile(x, y, math.random(5), math.min(math.random(self.level), 7), math.random(100) <= 5)
                 tile.y = -32
                 self.tiles[y][x] = tile
 
