@@ -1,11 +1,14 @@
 BeginGameState = Class{__includes = BaseState}
 
 function BeginGameState:init()
-    self.board = Board(WINDOW.VIRTUAL_WIDTH - 350, 45)
+    self.board = Board(WINDOW.VIRTUAL_WIDTH - 350, 30)
     self.levelLabelY = -64
 end
 
-function BeginGameState:enter()
+function BeginGameState:enter(params)
+
+    self.level = params.level
+    self.score = params.score
     Timer.tween(2, {
         [self] = {levelLabelY = WINDOW.VIRTUAL_HEIGHT / 2 - 8}
     })
@@ -22,7 +25,9 @@ function BeginGameState:enter()
             -- once that's complete, we're ready to play!
             :finish(function()
                 gStateMachine:change('play', {
-                    board = self.board
+                    board = self.board,
+                    level = self.level,
+                    score = self.score
                 })
             end)
         end)
@@ -39,5 +44,5 @@ function BeginGameState:render()
     love.graphics.rectangle('fill', 0, self.levelLabelY - 8, WINDOW.VIRTUAL_WIDTH, 48)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(gFonts['large'])
-    love.graphics.printf('Level ' .. tostring(1), 0, self.levelLabelY, WINDOW.VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Level ' .. tostring(self.level), 0, self.levelLabelY, WINDOW.VIRTUAL_WIDTH, 'center')
 end

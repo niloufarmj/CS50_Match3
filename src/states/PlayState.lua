@@ -1,5 +1,7 @@
 PlayState = Class{__includes = BaseState}
 
+BASE_SCORE = 2000
+
 function PlayState:init()
     
     self.boardHighlightX = 0
@@ -14,7 +16,7 @@ function PlayState:init()
 
     self.score = 0
 
-    self.timer = 120  -- Set the initial timer value to 120 seconds (2 minutes)
+    self.timer = 30  -- Set the initial timer value to 120 seconds (2 minutes)
     
     -- Define the tween for the timer countdown
     Timer.every(2, function()
@@ -26,10 +28,29 @@ end
 function PlayState:enter(params)
     -- spawn a board and place it toward the right
     self.board = params.board or Board(WINDOW.VIRTUAL_WIDTH - 272, 16)
-
+    self.level = params.level 
+    self.maxScore = BASE_SCORE + 1000 * self.level
+    self.sumScore = params.score
 end
 
 function PlayState:update(dt)
+    
+    if self.score >= self.maxScore then
+        gStateMachine:change('begin-game', {
+            level = self.level + 1,
+            score = self.sumScore + self.score
+        })
+    end
+
+    if self.timer <= 0 then
+        
+        -- clear timers from prior PlayStates
+        Timer.clear()
+        
+        gStateMachine:change('game-over', {
+            score = self.sumScore + self.score
+        })
+    end
 
     if self.canInput then
         -- move cursor around based on bounds of grid, playing sounds
@@ -137,7 +158,7 @@ function PlayState:render()
 
         love.graphics.setColor(1, 1, 1, 96/255)
         love.graphics.rectangle('fill', (self.highlightedTile.gridX - 1) * 32 + (WINDOW.VIRTUAL_WIDTH - 350),
-            (self.highlightedTile.gridY - 1) * 32 + 45, 32, 32, 4)
+            (self.highlightedTile.gridY - 1) * 32 + 30, 32, 32, 4)
 
         -- back to alpha
         love.graphics.setBlendMode('alpha')
@@ -153,10 +174,10 @@ function PlayState:render()
     -- draw actual cursor rect
     love.graphics.setLineWidth(3)
     love.graphics.rectangle('line', self.boardHighlightX * 32 + (WINDOW.VIRTUAL_WIDTH - 350),
-        self.boardHighlightY * 32 + 45, 32, 32, 4)
+        self.boardHighlightY * 32 + 30, 32, 32, 4)
 
-    -- Render the timer value on the screen
-    love.graphics.setColor(225/255, 115/255, 130/255)  -- Set the color for the timer text
+    local redColor = {225/255, 115/255, 130/255}
+
 
     minutes = self.timer / 60
     seconds = self.timer % 60
@@ -165,10 +186,31 @@ function PlayState:render()
         seconds = '0' .. tostring(seconds)
     end
 
+    love.graphics.setFont(gFonts['large'])
+
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.print("Timer", 16, 11)
+    love.graphics.setColor(redColor)
     love.graphics.print("Timer", 15, 10)
+
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.print(math.floor(minutes) .. ':' .. seconds, 26, 41)
+    love.graphics.setColor(redColor)
     love.graphics.print(math.floor(minutes) .. ':' .. seconds, 25, 40)  
 
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.print("Score", WINDOW.VIRTUAL_WIDTH-84, 11)
+    love.graphics.setColor(redColor)
     love.graphics.print("Score", WINDOW.VIRTUAL_WIDTH-85, 10)
+
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.printf(tostring(self.score), WINDOW.VIRTUAL_WIDTH-94, 41, 90, 'center')
+    love.graphics.setColor(redColor)
     love.graphics.printf(tostring(self.score), WINDOW.VIRTUAL_WIDTH-95, 40, 90, 'center')  
 
+    love.graphics.setFont(gFonts['medium'])
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.printf("You Need " .. tostring(self.maxScore) .. " Points To Pass This Level", 1, WINDOW.VIRTUAL_HEIGHT - 29, WINDOW.VIRTUAL_WIDTH, 'center')
+    love.graphics.setColor(0, 1, 1, 1)
+    love.graphics.printf("You Need " .. tostring(self.maxScore) .. " Points To Pass This Level", 0, WINDOW.VIRTUAL_HEIGHT - 30, WINDOW.VIRTUAL_WIDTH, 'center')
 end
