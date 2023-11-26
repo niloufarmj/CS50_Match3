@@ -34,7 +34,8 @@ function PlayState:enter(params)
 end
 
 function PlayState:update(dt)
-    
+    self.board:reset()
+
     if self.score >= self.maxScore then
         gStateMachine:change('begin-game', {
             level = self.level + 1,
@@ -213,4 +214,10 @@ function PlayState:render()
     love.graphics.printf("You Need " .. tostring(self.maxScore) .. " Points To Pass This Level", 1, WINDOW.VIRTUAL_HEIGHT - 29, WINDOW.VIRTUAL_WIDTH, 'center')
     love.graphics.setColor(0, 1, 1, 1)
     love.graphics.printf("You Need " .. tostring(self.maxScore) .. " Points To Pass This Level", 0, WINDOW.VIRTUAL_HEIGHT - 30, WINDOW.VIRTUAL_WIDTH, 'center')
+
+    if self.board.resetText ~= '' then
+        love.graphics.setFont(gFonts['large'])
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.printf(self.board.resetText, 0, WINDOW.VIRTUAL_HEIGHT / 2 - 16, WINDOW.VIRTUAL_WIDTH, 'center')
+    end
 end
