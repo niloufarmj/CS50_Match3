@@ -29,7 +29,7 @@ function PlayState:enter(params)
     -- spawn a board and place it toward the right
     self.board = params.board or Board(WINDOW.VIRTUAL_WIDTH - 272, 16)
     self.level = params.level 
-    self.maxScore = BASE_SCORE + 1000 * self.level
+    self.maxScore = BASE_SCORE + 1500 * self.level
     self.sumScore = params.score
 end
 
@@ -127,8 +127,10 @@ function PlayState:calculateMatches()
     local matches = self.board:calculateMatches()
 
     if matches then
+        
         for _, match in ipairs(matches) do
             self.score = self.score + #match * 50
+            self.timer = self.timer + #match  -- Add 1 second per tile in the match
         end
 
         self.board:removeMatches()
